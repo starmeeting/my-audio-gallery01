@@ -48,3 +48,23 @@ h1 {
     display: block;
     cursor: pointer;
 }
+/* === 控制按鈕的容器 === */
+.controls-container {
+    text-align: center; /* 讓按鈕水平置中 */
+    margin-bottom: 20px; /* 跟下面的圖片網格空開一點距離 */
+}
+
+#pauseButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff; /* 藍色按鈕 */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#pauseButton:hover {
+    background-color: #0056b3; /* 滑鼠移上去時變深藍色 */
+}
