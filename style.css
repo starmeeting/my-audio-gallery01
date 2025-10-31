@@ -18,7 +18,7 @@ h1 {
       - 意思是每個格子最小 140px，最大佔滿 1fr (一份)
       - auto-fit 會自動判斷一行能塞幾個
     */
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 15px; /* 圖片間的縫隙 */
     max-width: 1000px;
     margin: 20px auto;
