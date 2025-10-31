@@ -68,3 +68,24 @@ h1 {
 #pauseButton:hover {
     background-color: #0056b3; /* 滑鼠移上去時變深藍色 */
 }
+/* --- 這是新增的書本資訊樣式 --- */
+
+.gallery-item {
+    /* 讓圖片和文字資訊垂直排列 */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 水平置中 */
+}
+.book-info {
+    font-size: 14px; /* 讓字小一點 */
+    color: #333;     /* 文字顏色 */
+    padding: 10px;  /* 增加一點內距 */
+    text-align: left; /* 文字靠左對齊 */
+    width: 100%;      /* 讓寬度跟圖片一致 (可調整) */
+    box-sizing: border-box; /* 確保 padding 不會讓寬度溢出 */
+}
+.book-info p {
+    margin: 5px 0; /* 讓每行之間有點間距 */
+}
+
+/* --- 樣式結束 --- */
