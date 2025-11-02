@@ -1,5 +1,5 @@
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacMacFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     padding: 20px;
@@ -13,15 +13,8 @@ h1 {
 
 .gallery-container {
     display: grid;
-    
-    /* * 【這就是修正的地方】
-     * 舊的程式碼: grid-template-columns: repeat(5, 1fr);
-     * * 新的程式碼: 
-     * 讓瀏覽器自動判斷 (auto-fit) 一行能塞幾個，
-     * 每個最小 150px，最大 1fr (均分)
-     */
+    /* 讓瀏覽器自動判斷一行能塞幾個，每個最小 150px，最大 1fr (均分) */
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    
     gap: 15px; /* 圖片間的縫隙 */
     max-width: 1000px;
     margin: 20px auto;
@@ -32,6 +25,13 @@ h1 {
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    /* * 【修正點一：讓每個卡片本身也是一個彈性容器】
+     * 讓圖片和文字資訊垂直排列
+     */
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff; /* 確保卡片有白底 */
 }
 
 .gallery-item:hover {
@@ -46,15 +46,18 @@ h1 {
 
 .gallery-item img {
     width: 100%;
-    /* * 我們希望圖片有固定比例，而不是 100% 高度
-     * 這裡我們用 aspect-ratio (長寬比) 讓它自動保持書本封面比例 
+    /* * 【修正點二：確保圖片有固定比例，並佔據上方空間】
+     * 讓圖片有固定的長寬比 (這裡是 3:4)，並確保它會填滿卡片上方的可用寬度。
+     * flex-shrink: 0 防止圖片被壓縮。
      */
     height: auto; 
-    aspect-ratio: 3 / 4; /* 書本封面常見長寬比 (可依您的圖片調整) */
+    aspect-ratio: 3 / 4; /* 書本封面常見長寬比 (可依您的圖片調整，例如 1/1 正方形) */
     object-fit: cover; /* 確保圖片填滿方格不變形 */
     display: block;
     cursor: pointer;
+    flex-shrink: 0; /* 防止圖片被 flex 容器壓縮 */
 }
+
 /* === 控制按鈕的容器 === */
 .controls-container {
     text-align: center; /* 讓按鈕水平置中 */
@@ -75,15 +78,8 @@ h1 {
 #pauseButton:hover {
     background-color: #0056b3; /* 滑鼠移上去時變深藍色 */
 }
-/* --- 這是新增的書本資訊樣式 --- */
 
-.gallery-item {
-    /* 讓圖片和文字資訊垂直排列 */
-    display: flex;
-    flex-direction: column;
-    /* align-items: center; */ /* 由於文字要靠左，這裡先拿掉 */
-    background-color: #ffffff; /* 幫卡片加個白底 */
-}
+/* --- 這是新增的書本資訊樣式 --- */
 .book-info {
     font-size: 14px; /* 讓字小一點 */
     color: #333;     /* 文字顏色 */
@@ -92,7 +88,9 @@ h1 {
     width: 100%;      /* 讓寬度跟圖片一致 */
     box-sizing: border-box; /* 確保 padding 不會讓寬度溢出 */
     
-    /* 讓書本資訊區塊高度自動，但圖片會佔滿上方空間 */
+    /* * 【修正點三：讓文字資訊區塊填滿剩餘空間】
+     * flex-grow: 1 讓這個區塊盡可能地佔滿卡片中圖片下方剩餘的所有垂直空間。
+     */
     flex-grow: 1; 
 }
 .book-info p {
