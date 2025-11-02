@@ -1,10 +1,10 @@
 // ----------------------------------------------------
 //  Service Worker (sw.js) 離線管家程式碼
-//  (最終版：包含所有音訊與圖片)
+//  (v3 最終版：修正音檔錯字)
 // ----------------------------------------------------
 
-// v2 版快取 (更新版本號以觸發更新)
-const CACHE_NAME = 'reading-audio-cache-v2';
+// v3 版快取 (更新版本號以觸發更新)
+const CACHE_NAME = 'reading-audio-cache-v3';
 
 // ！！所有需要離線快取的檔案列表！！
 const FILES_TO_CACHE = [
@@ -18,9 +18,7 @@ const FILES_TO_CACHE = [
   'image/icon-192.png',
   'image/icon-512.png',
 
-  // 
-  // --- ↓↓↓ 您的10張書本封面圖檔 ↓↓↓ ---
-  // 
+  // 您的10張書本封面圖檔
   'image/不會寫字的獅子.jpg',
   'image/什麼都有書店.jpg',
   'image/只是玩笑話為什麼不能說.jpg',
@@ -31,18 +29,15 @@ const FILES_TO_CACHE = [
   'image/逃離吧腳就是用來跑的.jpg',
   'image/猜猜我在比什麼.jpg',
   'image/童話裡的建築大師.jpg',
-  //
-  // --- ↑↑↑ 您的10張書本封面圖檔 ↑↑↑ ---
-  // 
 
   // 
-  // --- ↓↓↓ 您的10個音訊檔案 ↓↓↓ ---
+  // --- ↓↓↓ 您的10個音訊檔案 (已修正錯字) ↓↓↓ ---
   // 
   'audio/不會寫字的獅子.m4a',
   'audio/什麼都有書店.m4a',
   'audio/原來發明筷子不是為了吃飯.m4a',
-  'audio/只是開玩笑為什麼不能說.m4a',
-  'audio/怎麼睡成這樣子.m4a',
+  'audio/只是玩笑話為什麼不能說.m4a', // 【已修正】
+  'audio/怎麼睡成這樣.m4a',           // 【已修正】
   'audio/我有意見.m4a',
   'audio/我有理由.m4a',
   'audio/猜猜我在比什麼.m4a',
@@ -58,7 +53,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Service Worker 正在快取所有檔案 (v2)...');
+        console.log('Service Worker 正在快取所有檔案 (v3)...');
         return cache.addAll(FILES_TO_CACHE);
       })
   );
@@ -80,7 +75,6 @@ self.addEventListener('fetch', (event) => {
 });
 
 // 3. 啟用 (Activate) 事件：刪除舊的快取
-// (這能確保您更新 sw.js 後，平板會抓到新的 v2 快取)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
