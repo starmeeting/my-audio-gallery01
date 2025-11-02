@@ -1,10 +1,10 @@
 // ----------------------------------------------------
 //  Service Worker (sw.js) 離線管家程式碼
-//  (版本：已包含所有音訊檔案)
+//  (最終版：包含所有音訊與圖片)
 // ----------------------------------------------------
 
-// v1 版快取名稱
-const CACHE_NAME = 'reading-audio-cache-v1';
+// v2 版快取 (更新版本號以觸發更新)
+const CACHE_NAME = 'reading-audio-cache-v2';
 
 // ！！所有需要離線快取的檔案列表！！
 const FILES_TO_CACHE = [
@@ -14,12 +14,29 @@ const FILES_TO_CACHE = [
   'style.css',
   'script.js',
 
-  // 您加入的圖示 (位於 'image' 資料夾)
+  // 您的 PWA 圖示
   'image/icon-192.png',
   'image/icon-512.png',
 
   // 
-  // --- ↓↓↓ 您的音訊檔案 (位於 'audio' 資料夾) ↓↓↓ ---
+  // --- ↓↓↓ 您的10張書本封面圖檔 ↓↓↓ ---
+  // 
+  'image/不會寫字的獅子.jpg',
+  'image/什麼都有書店.jpg',
+  'image/只是玩笑話為什麼不能說.jpg',
+  'image/我有理由.jpg',
+  'image/我有意見.jpg',
+  'image/怎麼睡成這個樣子.jpg',
+  'image/原來發明筷子不是為了吃飯.jpg',
+  'image/逃離吧腳就是用來跑的.jpg',
+  'image/猜猜我在比什麼.jpg',
+  'image/童話裡的建築大師.jpg',
+  //
+  // --- ↑↑↑ 您的10張書本封面圖檔 ↑↑↑ ---
+  // 
+
+  // 
+  // --- ↓↓↓ 您的10個音訊檔案 ↓↓↓ ---
   // 
   'audio/不會寫字的獅子.m4a',
   'audio/什麼都有書店.m4a',
@@ -32,7 +49,7 @@ const FILES_TO_CACHE = [
   'audio/童話裡的建築大師.m4a',
   'audio/逃離吧腳就是用來跑的.m4a'
   //
-  // --- ↑↑↑ 您的音訊檔案 ↑↑↑ ---
+  // --- ↑↑↑ 您的10個音訊檔案 ↑↑↑ ---
   //
 ];
 
@@ -41,8 +58,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Service Worker 正在快取檔案...');
-        // 將 FILES_TO_CACHE 列表中的所有檔案加入快取
+        console.log('Service Worker 正在快取所有檔案 (v2)...');
         return cache.addAll(FILES_TO_CACHE);
       })
   );
@@ -51,22 +67,31 @@ self.addEventListener('install', (event) => {
 // 2. 擷取 (Fetch) 事件：攔截網路請求
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    // 嘗試從快取中尋找相符的請求
     caches.match(event.request)
       .then((response) => {
-        // 如果快取中找得到 (response != null)，就直接從快取回傳
+        // 如果快取中有，就從快取回傳
         if (response) {
-          console.log('從快取提供:', event.request.url);
           return response;
         }
-
-        // 如果快取中找不到，才真的去向網路請求
-        console.log('從網路抓取:', event.request.url);
+        // 如果快取中沒有，才嘗試從網路抓取
         return fetch(event.request);
       })
   );
 });
 
-// ----------------------------------------------------
-//  程式碼結束
-// ----------------------------------------------------
+// 3. 啟用 (Activate) 事件：刪除舊的快取
+// (這能確保您更新 sw.js 後，平板會抓到新的 v2 快取)
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Service Worker 正在刪除舊快取:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
