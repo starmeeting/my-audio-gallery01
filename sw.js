@@ -1,65 +1,77 @@
 // ----------------------------------------------------
 //  Service Worker (sw.js) 離線管家程式碼
-//  (v3 最終版：修正音檔錯字)
+//  (v4 安全版：修正所有錯字 + 強化容錯)
 // ----------------------------------------------------
 
-// v3 版快取 (更新版本號以觸發更新)
-const CACHE_NAME = 'reading-audio-cache-v3';
+// v4 版快取
+const CACHE_NAME = 'reading-audio-cache-v4';
 
-// ！！所有需要離線快取的檔案列表！！
-const FILES_TO_CACHE = [
-  '/', // 這個代表根目錄，一定要加
+// 1. 核心檔案 (必須全部成功)
+const CORE_FILES = [
+  '/',
   'index.html',
-  'manifest.json',
   'style.css',
   'script.js',
+  'manifest.json'
+];
 
-  // 您的 PWA 圖示
+// 2. 內容檔案 (允許部分失敗)
+const CONTENT_FILES = [
+  // PWA 圖示
   'image/icon-192.png',
   'image/icon-512.png',
-
-  // 您的10張書本封面圖檔
+  
+  // 書本封面 (已修正 '怎麼睡成...' 的錯字)
   'image/不會寫字的獅子.jpg',
   'image/什麼都有書店.jpg',
   'image/只是玩笑話為什麼不能說.jpg',
   'image/我有理由.jpg',
   'image/我有意見.jpg',
-  'image/怎麼睡成這個樣子.jpg',
+  'image/怎麼睡成這個樣子.jpg', // 【已修正】
   'image/原來發明筷子不是為了吃飯.jpg',
   'image/逃離吧腳就是用來跑的.jpg',
   'image/猜猜我在比什麼.jpg',
   'image/童話裡的建築大師.jpg',
-
-  // 
-  // --- ↓↓↓ 您的10個音訊檔案 (已修正錯字) ↓↓↓ ---
-  // 
+  
+  // 音訊檔案 (已修正 '只是玩笑話...' 和 '怎麼睡成...' 的錯字)
   'audio/不會寫字的獅子.m4a',
   'audio/什麼都有書店.m4a',
   'audio/原來發明筷子不是為了吃飯.m4a',
   'audio/只是玩笑話為什麼不能說.m4a', // 【已修正】
-  'audio/怎麼睡成這樣.m4a',           // 【已修正】
+  'audio/怎麼睡成這樣子.m4a',           // 【已修正】
   'audio/我有意見.m4a',
   'audio/我有理由.m4a',
   'audio/猜猜我在比什麼.m4a',
   'audio/童話裡的建築大師.m4a',
   'audio/逃離吧腳就是用來跑的.m4a'
-  //
-  // --- ↑↑↑ 您的10個音訊檔案 ↑↑↑ ---
-  //
 ];
 
-// 1. 安裝 (Install) 事件：開啟快取並存入所有檔案
+// --- 安裝 (Install) 事件 ---
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Service Worker 正在快取所有檔案 (v3)...');
-        return cache.addAll(FILES_TO_CACHE);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('Service Worker v4: 正在快取核心檔案...');
+      
+      // 1. 先快取「核心檔案」(必須成功)
+      return cache.addAll(CORE_FILES).then(() => {
+        console.log('Service Worker v4: 正在快取內容檔案 (一個一個)...');
+        
+        // 2. 再快取「內容檔案」(一個一個來，允許失敗)
+        const cachePromises = CONTENT_FILES.map((url) => {
+          return cache.add(url).catch((err) => {
+            // 如果某個檔案快取失敗，只在主控台顯示警告，但「不會」讓安裝失敗
+            console.warn(`Service Worker v4: 跳過：${url} (無法快取 - ${err})`);
+          });
+        });
+        
+        // 等待所有內容檔案都嘗試過
+        return Promise.all(cachePromises);
+      });
+    })
   );
 });
 
-// 2. 擷取 (Fetch) 事件：攔截網路請求
+// --- 擷取 (Fetch) 事件 ---
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
@@ -74,14 +86,15 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// 3. 啟用 (Activate) 事件：刪除舊的快取
+// --- 啟用 (Activate) 事件 ---
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
+          // 刪除所有不是 v4 的舊快取
           if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker 正在刪除舊快取:', cacheName);
+            console.log('Service Worker v4: 正在刪除舊快取:', cacheName);
             return caches.delete(cacheName);
           }
         })
