@@ -13,12 +13,15 @@ h1 {
 
 .gallery-container {
     display: grid;
-    /* 響應式設計:
-      - minmax(140px, 1fr) 
-      - 意思是每個格子最小 140px，最大佔滿 1fr (一份)
-      - auto-fit 會自動判斷一行能塞幾個
-    */
-    grid-template-columns: repeat(5, 1fr);
+    
+    /* * 【這就是修正的地方】
+     * 舊的程式碼: grid-template-columns: repeat(5, 1fr);
+     * * 新的程式碼: 
+     * 讓瀏覽器自動判斷 (auto-fit) 一行能塞幾個，
+     * 每個最小 150px，最大 1fr (均分)
+     */
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    
     gap: 15px; /* 圖片間的縫隙 */
     max-width: 1000px;
     margin: 20px auto;
@@ -43,7 +46,11 @@ h1 {
 
 .gallery-item img {
     width: 100%;
-    height: 100%;
+    /* * 我們希望圖片有固定比例，而不是 100% 高度
+     * 這裡我們用 aspect-ratio (長寬比) 讓它自動保持書本封面比例 
+     */
+    height: auto; 
+    aspect-ratio: 3 / 4; /* 書本封面常見長寬比 (可依您的圖片調整) */
     object-fit: cover; /* 確保圖片填滿方格不變形 */
     display: block;
     cursor: pointer;
@@ -74,15 +81,19 @@ h1 {
     /* 讓圖片和文字資訊垂直排列 */
     display: flex;
     flex-direction: column;
-    align-items: center; /* 水平置中 */
+    /* align-items: center; */ /* 由於文字要靠左，這裡先拿掉 */
+    background-color: #ffffff; /* 幫卡片加個白底 */
 }
 .book-info {
     font-size: 14px; /* 讓字小一點 */
     color: #333;     /* 文字顏色 */
-    padding: 10px;  /* 增加一點內距 */
+    padding: 10px;   /* 增加一點內距 */
     text-align: left; /* 文字靠左對齊 */
-    width: 100%;      /* 讓寬度跟圖片一致 (可調整) */
+    width: 100%;      /* 讓寬度跟圖片一致 */
     box-sizing: border-box; /* 確保 padding 不會讓寬度溢出 */
+    
+    /* 讓書本資訊區塊高度自動，但圖片會佔滿上方空間 */
+    flex-grow: 1; 
 }
 .book-info p {
     margin: 5px 0; /* 讓每行之間有點間距 */
